@@ -1,0 +1,54 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: thrive-cart
+        container_name: thrive-cart
+        volumes:
+            - .:/var/www
+        depends_on:
+            - db
+        networks:
+            - laravel
+        expose:
+            - '9000' # this is where php-fpm listens
+        command: >
+            sh -c "composer install &&
+                   php artisan migrate &&
+                   php-fpm"
+
+    db:
+        image: mysql:8.0
+        container_name: mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: laravel
+            MYSQL_USER: laravel
+            MYSQL_PASSWORD: secret
+        ports:
+            - '3307:3306'
+        volumes:
+            - db_data:/var/lib/mysql
+        networks:
+            - laravel
+
+    nginx:
+        image: nginx:alpine
+        container_name: nginx
+        ports:
+            - '8080:80'
+        volumes:
+            - .:/var/www
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+        depends_on:
+            - app
+        networks:
+            - laravel
+
+volumes:
+    db_data:
+
+networks:
+    laravel:
