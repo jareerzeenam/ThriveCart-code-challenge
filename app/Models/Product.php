@@ -6,14 +6,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $fillable = ['code', 'name', 'price'];
+    public string $code;
+    public string $name;
+    public float $price;
 
-    public static function defaultCatalog()
+    public function __construct(string $code, string $name, float $price)
+    {
+        $this->code = $code;
+        $this->name = $name;
+        $this->price = $price;
+    }
+
+    public static function defaultCatalog(): array
     {
         return [
-            new self(['code' => 'R01', 'name' => 'Red Widget', 'price' => 32.95]),
-            new self(['code' => 'G01', 'name' => 'Green Widget', 'price' => 24.95]),
-            new self(['code' => 'B01', 'name' => 'Blue Widget', 'price' => 7.95]),
+            new self('R01', 'Red Widget', 32.95),
+            new self('G01', 'Green Widget', 24.95),
+            new self('B01', 'Blue Widget', 7.95),
         ];
     }
 }

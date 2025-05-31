@@ -1,18 +1,24 @@
 <?php
 namespace App\Services;
 
+use App\Models\Product;
 class BasketService
 {
-    protected $products;
-    protected $deliveryRules;
-    protected $offers;
-    protected $items = [];
+    private array $products;
+    private array $deliveryRules;
+    private array $offers;
+    private array $items = [];
+    private OfferCalculator $offerCalculator;
 
-    public function __construct($products, $deliveryRules, $offers)
-    {
+    public function __construct(
+        array $products,
+        array $deliveryRules,
+        array $offers
+    ) {
         $this->products = $products;
         $this->deliveryRules = $deliveryRules;
         $this->offers = $offers;
+        $this->offerCalculator = new OfferCalculator();
     }
 
     public function add($productCode)
@@ -26,46 +32,34 @@ class BasketService
         $this->items[] = $product;
     }
 
-    public function total()
+    public function getBasket()
+    {
+        return $this->items;
+    }
+
+    public function total(): float
     {
         $subtotal = $this->calculateSubtotal();
         $delivery = $this->calculateDelivery($subtotal);
-
         return round($subtotal + $delivery, 2);
     }
 
-    protected function calculateSubtotal()
+     protected function calculateSubtotal(): float
     {
-        $subtotal = 0;
-        $productCounts = [];
-
-        foreach ($this->items as $item) {
-            if (!isset($productCounts[$item->code])) {
-                $productCounts[$item->code] = 0;
-            }
-            $productCounts[$item->code]++;
-        }
+        $subtotal = array_reduce(
+            $this->items,
+            fn(float $carry, Product $item) => $carry + $item->price,
+            0.0
+        );
 
         foreach ($this->offers as $offer) {
-            if (isset($productCounts[$offer->productCode]) &&
-                $productCounts[$offer->productCode] >= $offer->threshold) {
-
-                $product = $this->findProductByCode($offer->productCode);
-                $applicableItems = floor($productCounts[$offer->productCode] / $offer->threshold);
-
-                if ($offer->type === 'half_price') {
-                    $discount = $product->price * $offer->discount * $applicableItems;
-                    $subtotal -= $discount;
-                }
-            }
-        }
-
-        foreach ($this->items as $item) {
-            $subtotal += $item->price;
+            $discount = $this->offerCalculator->calculateDiscount($this->items, $offer);
+            $subtotal -= $discount;
         }
 
         return $subtotal;
     }
+
 
     protected function calculateDelivery($subtotal)
     {
@@ -74,8 +68,7 @@ class BasketService
                 return $rule->cost;
             }
         }
-
-        return 0;
+        return 0.0;
     }
 
     protected function findProductByCode($code)
