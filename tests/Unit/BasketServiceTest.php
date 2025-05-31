@@ -1,12 +1,9 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Unit;
 
 use App\Models\DeliveryChargeRule;
-use App\Models\Offer;
-use App\Models\Product;
 use App\Services\BasketService;
-use App\Services\OfferCalculator;
 use Tests\TestCase;
 
 class BasketServiceTest extends TestCase
