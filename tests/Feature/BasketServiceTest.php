@@ -6,18 +6,19 @@ use App\Models\DeliveryChargeRule;
 use App\Models\Offer;
 use App\Models\Product;
 use App\Services\BasketService;
+use App\Services\OfferCalculator;
 use Tests\TestCase;
 
 class BasketServiceTest extends TestCase
 {
-    private function createBasketService(): BasketService
-    {
-        $products = Product::defaultCatalog();
-        $deliveryRules = DeliveryChargeRule::defaultRules();
-        $offers = Offer::defaultOffers();
+    // private function createBasketService(): BasketService
+    // {
+    //     $products = Product::defaultCatalog();
+    //     $deliveryRules = DeliveryChargeRule::defaultRules();
+    //     $offers = Offer::defaultOffers();
 
-        return new BasketService($products, $deliveryRules, $offers);
-    }
+    //     return new BasketService($products, $deliveryRules, $offers);
+    // }
 
     private function getSubtotal(BasketService $basket): float
     {
@@ -38,18 +39,19 @@ class BasketServiceTest extends TestCase
         return 0;
     }
 
-    // public function test_add_product_to_basket()
-    // {
-    //     $basketService = $this->createBasketService();
-    //     $basketService->add('R01');
+    public function test_add_product_to_basket()
+    {
+        $basket = app(BasketService::class);
+        $basket->add('R01');
 
-    //     $this->assertCount(1, $basketService->getBasket());
-    //     $this->assertEquals('R01', $basketService->getBasket()[0]->code);
-    // }
+        $this->assertCount(1, $basket->getBasket());
+        $this->assertEquals('R01', $basket->getBasket()[0]->code);
+    }
+
 
     public function test_calculates_correct_total_for_B01_G01()
     {
-        $basket = $this->createBasketService();
+        $basket = app(BasketService::class);
         $basket->add('B01');
         $basket->add('G01');
 
@@ -57,7 +59,7 @@ class BasketServiceTest extends TestCase
     }
     public function test_calculates_correct_total_for_R01_R01()
     {
-        $basket = $this->createBasketService();
+        $basket = app(BasketService::class);
         $basket->add('R01');
         $basket->add('R01');
 
@@ -65,7 +67,7 @@ class BasketServiceTest extends TestCase
     }
     public function test_calculates_correct_total_for_R01_G01()
     {
-        $basket = $this->createBasketService();
+        $basket = app(BasketService::class);
         $basket->add('R01');
         $basket->add('G01');
 
@@ -75,7 +77,7 @@ class BasketServiceTest extends TestCase
 
     public function test_calculates_free_delivery_correctly()
     {
-        $basket = $this->createBasketService();
+        $basket = app(BasketService::class);
         $basket->add('B01');
         $basket->add('B01');
         $basket->add('R01');
@@ -106,7 +108,8 @@ class BasketServiceTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        $basket = $this->createBasketService();
+        $this->expectExceptionMessage('Product with code INVALID not found');
+        $basket = app(BasketService::class);
         $basket->add('INVALID');
     }
 }
