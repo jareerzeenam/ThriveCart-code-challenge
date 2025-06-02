@@ -8,6 +8,20 @@ A Laravel-based basket pricing system that calculates order totals with:
 - Special product offers ("Buy 1 Red Widget, get 2nd half price")
 - Unit-tested business logic
 
+# Key Components
+
+- BasketService: Core pricing logic
+
+- OfferCalculator: Handles special offers
+
+- DeliveryChargeRule: Manages shipping tiers
+
+## Prerequisites
+
+- Docker & Docker Compose installed
+- PHP >= 8.x
+- Composer
+
 ## Getting Started
 
 ### 1. Clone the Repository
@@ -19,17 +33,29 @@ cd ThriveCart-code-challenge
 
 ### 2. Docker Setup
 
-# Build and start containers
+### Build and start containers
 
+```bash 
 docker compose up -d --build
+```
 
-# Install dependencies
+### Install dependencies
 
+```bash 
 docker compose exec app composer install
+```
 
-# Generate app key
+### Copy environment file
 
+```bash
+docker compose exec app cp .env.example .env
+```
+
+### Generate app key
+
+```bash 
 docker compose exec app php artisan key:generate
+```
 
 ### 3. Run Unit Tests
 
@@ -37,19 +63,29 @@ docker compose exec app php artisan key:generate
 docker compose exec app php artisan test --filter BasketServiceTest
 ```
 
-# Key Components
+### Run Locally (Without Docker)
+```bash
+# Clone the repository
+composer install
 
-- BasketService: Core pricing logic
+# Copy the example environment file
+cp .env.example .env
 
-- OfferCalculator: Handles special offers
+# Generate application key
+php artisan key:generate
 
-- DeliveryChargeRule: Manages shipping tiers
+# Start the local server
+php artisan serve
+
+# Run Unit Tests
+php artisan test --filter BasketServiceTest
+```
 
 # Access the Application
 
 - Web: http://localhost:8080
 
-- MySQL: Port 3307 (root/root)
+- MySQL: Port 3307 (optional)
 
 Troubleshooting
 If tests fail:
@@ -59,3 +95,5 @@ If tests fail:
 2. Check logs: `docker compose logs app`
 
 3. Rebuild: `docker compose down && docker compose up -d --build`
+
+Happy coding! 🚀
