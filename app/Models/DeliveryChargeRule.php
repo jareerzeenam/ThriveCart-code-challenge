@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DeliveryChargeRule extends Model
+class DeliveryChargeRule
 {
     public $minAmount;
     public $maxAmount;
@@ -20,10 +20,12 @@ class DeliveryChargeRule extends Model
 
     public static function defaultRules(): array
     {
-        return [
-            new self(0, 50, 4.95), // Up to £50,  £4.95
-            new self(50, 90, 2.95), // £50 to £90, £2.95
-            new self(90, PHP_FLOAT_MAX, 0), // Over £90, free
-        ];
+        return collect(config('delivery'))
+            ->map(fn($rule) => new self(
+                $rule['minAmount'],
+                $rule['maxAmount'],
+                $rule['cost']
+            ))
+            ->toArray();
     }
 }

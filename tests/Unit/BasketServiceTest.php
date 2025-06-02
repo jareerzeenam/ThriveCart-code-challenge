@@ -4,24 +4,18 @@ namespace Tests\Unit;
 
 use App\Models\DeliveryChargeRule;
 use App\Services\BasketService;
+use ReflectionException;
 use Tests\TestCase;
 
 class BasketServiceTest extends TestCase
 {
-    // private function createBasketService(): BasketService
-    // {
-    //     $products = Product::defaultCatalog();
-    //     $deliveryRules = DeliveryChargeRule::defaultRules();
-    //     $offers = Offer::defaultOffers();
-
-    //     return new BasketService($products, $deliveryRules, $offers);
-    // }
-
+    /**
+     * @throws ReflectionException
+     */
     private function getSubtotal(BasketService $basket): float
     {
         $reflection = new \ReflectionClass($basket);
         $method = $reflection->getMethod('calculateSubtotal');
-        $method->setAccessible(true);
 
         return $method->invoke($basket);
     }
@@ -72,6 +66,9 @@ class BasketServiceTest extends TestCase
     }
 
 
+    /**
+     * @throws ReflectionException
+     */
     public function test_calculates_free_delivery_correctly()
     {
         $basket = app(BasketService::class);

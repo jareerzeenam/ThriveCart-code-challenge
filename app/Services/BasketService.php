@@ -13,15 +13,16 @@ class BasketService
     public function __construct(
         array $products,
         array $deliveryRules,
-        array $offers
+        array $offers,
+        OfferCalculator $offerCalculator
     ) {
         $this->products = $products;
         $this->deliveryRules = $deliveryRules;
         $this->offers = $offers;
-        $this->offerCalculator = new OfferCalculator();
+        $this->offerCalculator = $offerCalculator;
     }
 
-    public function add($productCode)
+    public function add($productCode): void
     {
         $product = $this->findProductByCode($productCode);
 
@@ -32,7 +33,7 @@ class BasketService
         $this->items[] = $product;
     }
 
-    public function getBasket()
+    public function getBasket(): array
     {
         return $this->items;
     }

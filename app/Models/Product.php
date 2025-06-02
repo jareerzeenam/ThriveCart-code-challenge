@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Product extends Model
+class Product
 {
     public string $code;
     public string $name;
@@ -19,10 +19,12 @@ class Product extends Model
 
     public static function defaultCatalog(): array
     {
-        return [
-            new self('R01', 'Red Widget', 32.95),
-            new self('G01', 'Green Widget', 24.95),
-            new self('B01', 'Blue Widget', 7.95),
-        ];
+        return collect(config('products'))
+            ->map(fn($product) => new self(
+                $product['code'],
+                $product['name'],
+                $product['price']
+            ))
+            ->toArray();
     }
 }

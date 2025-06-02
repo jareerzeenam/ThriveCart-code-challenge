@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Offer extends Model
+class Offer
 {
     public string $productCode;
     public string $type;
@@ -25,8 +25,13 @@ class Offer extends Model
 
     public static function defaultOffers(): array
     {
-        return [
-            new self('R01', 'half_price', 2, 0.5),
-        ];
+        return collect(config('offers'))
+            ->map(fn($offer) => new self(
+                $offer['productCode'],
+                $offer['type'],
+                $offer['threshold'],
+                $offer['discountValue']
+            ))
+            ->toArray();
     }
 }
